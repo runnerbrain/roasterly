@@ -1,0 +1,45 @@
+import mongoose, { Schema, models, model } from 'mongoose';
+
+const ComputedSchema = new Schema(
+  {
+    chargeET:        { type: Number, default: null }, // Environmental temp at charge
+    chargeBT:        { type: Number, default: null }, // Bean temp at charge
+    dropET:          { type: Number, default: null }, // Environmental temp at drop
+    dropBT:          { type: Number, default: null }, // Bean temp at drop
+    dropTime:        { type: Number, default: null }, // Time of drop (seconds)
+    firstCrackTime:  { type: Number, default: null }, // Time of first crack (seconds)
+    firstCrackBT:    { type: Number, default: null }, // Bean temp at first crack
+    totalRoastTime:  { type: Number, default: null }, // Total roast duration (seconds)
+    dryPhaseRoR:     { type: Number, default: null }, // Rate of Rise during dry phase (°/min)
+    midPhaseRoR:     { type: Number, default: null }, // Rate of Rise during mid phase (°/min)
+    finishPhaseRoR:  { type: Number, default: null }, // Rate of Rise during finish phase (°/min)
+    totalRoR:        { type: Number, default: null }, // Overall Rate of Rise (°/min)
+  },
+  { _id: false } // embedded object, no separate _id needed
+);
+
+const RoastSchema = new Schema(
+  {
+    title:         { type: String, required: true, trim: true },
+    beans:         { type: String, required: true, trim: true },
+    roastDate:     { type: Date,   required: true },
+    roastTime:     { type: String, required: true }, // e.g. "14:30"
+    roastUUID:     { type: String, required: true, unique: true, index: true },
+    weightIn:      { type: Number, required: true, min: 0 }, // grams
+    weightOut:     { type: Number, required: true, min: 0 }, // grams
+    weightLoss:    { type: Number, default: null },           // grams (or %)
+    roastingNotes:    { type: String, default: '' },
+    cuppingNotes:     { type: String, default: '' },
+    ambientTemp:      { type: Number, default: null },
+    ambientHumidity:  { type: Number, default: null },
+    computed:         { type: ComputedSchema, default: () => ({}) },
+  },
+  {
+    timestamps: true, // adds createdAt and updatedAt
+  }
+);
+
+// Prevent model recompilation on hot-reload (Next.js dev server)
+const Roast = models.Roast || model('Roast', RoastSchema);
+
+export default Roast;
