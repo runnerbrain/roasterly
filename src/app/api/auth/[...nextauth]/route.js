@@ -10,7 +10,8 @@ export const authOptions = {
   ],
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      const isAllowedToSignIn = user.email === process.env.ALLOWED_EMAIL;
+      const allowedEmails = (process.env.ALLOWED_EMAIL || "").split(",").map(e => e.trim());
+      const isAllowedToSignIn = allowedEmails.includes(user.email);
       if (isAllowedToSignIn) {
         return true;
       } else {
