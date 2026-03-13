@@ -86,14 +86,14 @@ function RoastCard({ roast, onClick }) {
         <Stat label="Roast Time"   value={fmtSecs(c.totalRoastTime)} />
 
         {/* Row 2 */}
-        <div /> {/* Maintain grid alignment */}
         <Stat label="Ambient Temp" value={roast.ambientTemp != null ? fmtTemp(roast.ambientTemp) : '—'} />
         <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'} />
+        <Stat label="TP Time/BT"   value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
 
         {/* Row 3 */}
-        <Stat label="TP Time/BT"   value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
         <Stat label="Dry Time/BT"  value={`${fmtSecs(c.dryTime)} @ ${fmtTemp(c.dryBT)}`} />
         <Stat label="1C Start Time/BT" value={`${fmtSecs(c.firstCrackTime)} @ ${fmtTemp(c.firstCrackBT)}`} />
+        <Stat label="Dry to 1C"    value={c.dryTime && c.firstCrackTime ? fmtSecs(c.firstCrackTime - c.dryTime) : '—'} />
 
         {/* Row 4 */}
         <Stat label="1C End Time/BT" value={`${fmtSecs(c.fcEndTime)} @ ${fmtTemp(c.fcEndBT)}`} />
@@ -131,7 +131,14 @@ function RoastModal({ roast, onClose }) {
         <button className="modal-close" onClick={onClose} aria-label="Close">✕</button>
 
         <div className="modal-header">
-          <h2 className="modal-title">{roast.title || 'Untitled'}</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+            <h2 className="modal-title">{roast.title || 'Untitled'}</h2>
+            {roast.weightIn && (
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', background: 'var(--bg)', border: '1px solid var(--border)', padding: '3px 10px', borderRadius: '14px', whiteSpace: 'nowrap' }}>
+                {fmtWeight(roast.weightIn)} in
+              </span>
+            )}
+          </div>
           <div className="card-meta">
             <span>{fmtDate(roast.roastDate)}</span>
             {roast.roastTime && <><span className="dot">·</span><span>{roast.roastTime}</span></>}
@@ -141,21 +148,29 @@ function RoastModal({ roast, onClose }) {
 
         <div className="modal-section-label">Roast Stats</div>
         <div className="modal-stats">
-          <Stat label="Weight In"    value={fmtWeight(roast.weightIn)} />
-          <Stat label="Weight Out"   value={fmtWeight(roast.weightOut)} />
-          <Stat label="Loss"         value={weightLoss} em />
-          <Stat label="Roast Time"   value={fmtSecs(c.totalRoastTime)} />
+          {/* Row 1 - Match Card Header */}
+          <Stat label="Drop BT"      value={fmtTemp(c.dropBT)} />
+          <Stat label="Drop ET"      value={fmtTemp(c.dropET)} />
           <Stat label="Charge BT"    value={fmtTemp(c.chargeBT)} />
           <Stat label="Charge ET"    value={fmtTemp(c.chargeET)} />
+
+          {/* Row 2 - Match Card Row 2 */}
+          <Stat label="Ambient Temp" value={roast.ambientTemp != null ? fmtTemp(roast.ambientTemp) : '—'} />
+          <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'} />
           <Stat label="TP Time/BT"   value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
           <Stat label="TP ET"        value={fmtTemp(c.tpET)} />
+
+          {/* Row 3 - Match Card Row 3 */}
           <Stat label="Dry Time/BT"  value={`${fmtSecs(c.dryTime)} @ ${fmtTemp(c.dryBT)}`} />
           <Stat label="Dry ET"       value={fmtTemp(c.dryET)} />
-          <Stat label="1C Time/BT"   value={`${fmtSecs(c.firstCrackTime)} @ ${fmtTemp(c.firstCrackBT)}`} />
-          <Stat label="Drop Time/BT" value={`${fmtSecs(c.dropTime)} @ ${fmtTemp(c.dropBT)}`} />
-          <Stat label="Drop ET"      value={fmtTemp(c.dropET)} />
-          <Stat label="Ambient Temp" value={roast.ambientTemp     != null ? fmtTemp(roast.ambientTemp)  : '—'} />
-          <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'} />
+          <Stat label="1C Start Time/BT" value={`${fmtSecs(c.firstCrackTime)} @ ${fmtTemp(c.firstCrackBT)}`} />
+          <Stat label="Dry to 1C"    value={c.dryTime && c.firstCrackTime ? fmtSecs(c.firstCrackTime - c.dryTime) : '—'} />
+
+          {/* Row 4 - Match Card Row 4 */}
+          <Stat label="1C End Time/BT" value={`${fmtSecs(c.fcEndTime)} @ ${fmtTemp(c.fcEndBT)}`} />
+          <Stat label="Roast Time"   value={fmtSecs(c.totalRoastTime)} />
+          <Stat label="Weight Out"   value={fmtWeight(roast.weightOut)} />
+          <Stat label="Loss"         value={weightLoss} em />
         </div>
 
         <div className="modal-section-label">Rate of Rise (°/min)</div>
