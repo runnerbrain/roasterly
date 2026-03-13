@@ -73,16 +73,23 @@ function RoastCard({ roast, onClick }) {
       </div>
 
       <div className="card-stats">
-        <Stat label="Weight In"    value={fmtWeight(roast.weightIn)} />
-        <Stat label="Weight Out"   value={fmtWeight(roast.weightOut)} />
-        <Stat label="Loss"         value={weightLoss} em />
-        <Stat label="Roast Time"   value={fmtSecs(c.totalRoastTime)} />
+        {/* Row 1 */}
         <Stat label="Drop BT"      value={fmtTemp(c.dropBT)} />
-        <Stat label="Charge BT"    value={fmtTemp(c.chargeBT)}        className="stat--detail" />
-        <Stat label="1C Time"      value={fmtSecs(c.firstCrackTime)}  className="stat--detail" />
-        <Stat label="1C BT"        value={fmtTemp(c.firstCrackBT)}    className="stat--detail" />
-        <Stat label="Ambient Temp" value={roast.ambientTemp     != null ? fmtTemp(roast.ambientTemp)       : '—'} className="stat--detail" />
-        <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%`      : '—'} className="stat--detail" />
+        <Stat label="Charge BT"    value={fmtTemp(c.chargeBT)} />
+        <Stat label="Roast Time"   value={fmtSecs(c.totalRoastTime)} />
+
+        {/* Row 2 */}
+        <Stat label="Weight In"    value={fmtWeight(roast.weightIn)} />
+        <Stat label="Ambient Temp" value={roast.ambientTemp != null ? fmtTemp(roast.ambientTemp) : '—'} />
+        <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'} />
+
+        {/* Row 3 */}
+        <Stat label="TP Time/BT"   value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
+        <Stat label="Dry Time/BT"  value={`${fmtSecs(c.dryTime)} @ ${fmtTemp(c.dryBT)}`} />
+        <Stat label="1C Start Time/BT" value={`${fmtSecs(c.firstCrackTime)} @ ${fmtTemp(c.firstCrackBT)}`} />
+
+        {/* Row 4 */}
+        <Stat label="1C End Time/BT" value={`${fmtSecs(c.fcEndTime)} @ ${fmtTemp(c.fcEndBT)}`} />
       </div>
     </article>
   );
@@ -133,11 +140,13 @@ function RoastModal({ roast, onClose }) {
           <Stat label="Roast Time"   value={fmtSecs(c.totalRoastTime)} />
           <Stat label="Charge BT"    value={fmtTemp(c.chargeBT)} />
           <Stat label="Charge ET"    value={fmtTemp(c.chargeET)} />
-          <Stat label="Drop BT"      value={fmtTemp(c.dropBT)} />
+          <Stat label="TP Time/BT"   value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
+          <Stat label="TP ET"        value={fmtTemp(c.tpET)} />
+          <Stat label="Dry Time/BT"  value={`${fmtSecs(c.dryTime)} @ ${fmtTemp(c.dryBT)}`} />
+          <Stat label="Dry ET"       value={fmtTemp(c.dryET)} />
+          <Stat label="1C Time/BT"   value={`${fmtSecs(c.firstCrackTime)} @ ${fmtTemp(c.firstCrackBT)}`} />
+          <Stat label="Drop Time/BT" value={`${fmtSecs(c.dropTime)} @ ${fmtTemp(c.dropBT)}`} />
           <Stat label="Drop ET"      value={fmtTemp(c.dropET)} />
-          <Stat label="1C Time"      value={fmtSecs(c.firstCrackTime)} />
-          <Stat label="1C BT"        value={fmtTemp(c.firstCrackBT)} />
-          <Stat label="Drop Time"    value={fmtSecs(c.dropTime)} />
           <Stat label="Ambient Temp" value={roast.ambientTemp     != null ? fmtTemp(roast.ambientTemp)  : '—'} />
           <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'} />
         </div>

@@ -4,11 +4,20 @@ const ComputedSchema = new Schema(
   {
     chargeET:        { type: Number, default: null }, // Environmental temp at charge
     chargeBT:        { type: Number, default: null }, // Bean temp at charge
+    tpTime:          { type: Number, default: null }, // Time of turning point (seconds)
+    tpBT:            { type: Number, default: null }, // Bean temp at turning point
+    tpET:            { type: Number, default: null }, // Environmental temp at turning point
+    dryTime:         { type: Number, default: null }, // Time of dry end (seconds)
+    dryBT:           { type: Number, default: null }, // Bean temp at dry end
+    dryET:           { type: Number, default: null }, // Environmental temp at dry end
     dropET:          { type: Number, default: null }, // Environmental temp at drop
     dropBT:          { type: Number, default: null }, // Bean temp at drop
     dropTime:        { type: Number, default: null }, // Time of drop (seconds)
     firstCrackTime:  { type: Number, default: null }, // Time of first crack (seconds)
     firstCrackBT:    { type: Number, default: null }, // Bean temp at first crack
+    fcEndTime:       { type: Number, default: null }, // Time of first crack end (seconds)
+    fcEndBT:         { type: Number, default: null }, // Bean temp at first crack end
+    fcEndET:         { type: Number, default: null }, // Environmental temp at first crack end
     totalRoastTime:  { type: Number, default: null }, // Total roast duration (seconds)
     dryPhaseRoR:     { type: Number, default: null }, // Rate of Rise during dry phase (°/min)
     midPhaseRoR:     { type: Number, default: null }, // Rate of Rise during mid phase (°/min)
