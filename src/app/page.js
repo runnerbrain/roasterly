@@ -65,7 +65,14 @@ function RoastCard({ roast, onClick }) {
     <article className="roast-card" onClick={onClick} role="button" tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onClick()}>
       <div className="card-header">
-        <h2 className="card-title">{roast.title || 'Untitled'}</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+          <h2 className="card-title">{roast.title || 'Untitled'}</h2>
+          {roast.weightIn && (
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', background: 'var(--bg)', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: '12px', whiteSpace: 'nowrap' }}>
+              {fmtWeight(roast.weightIn)} in
+            </span>
+          )}
+        </div>
         <div className="card-meta">
           <span>{fmtDate(roast.roastDate)}</span>
           {roast.roastTime && <><span className="dot">·</span><span>{roast.roastTime}</span></>}
@@ -79,7 +86,7 @@ function RoastCard({ roast, onClick }) {
         <Stat label="Roast Time"   value={fmtSecs(c.totalRoastTime)} />
 
         {/* Row 2 */}
-        <Stat label="Weight In"    value={fmtWeight(roast.weightIn)} />
+        <div /> {/* Maintain grid alignment */}
         <Stat label="Ambient Temp" value={roast.ambientTemp != null ? fmtTemp(roast.ambientTemp) : '—'} />
         <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'} />
 
