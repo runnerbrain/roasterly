@@ -67,6 +67,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ── Filters ─────────────────────────────────────── */
+.filters-toggle { display: none; }
 .filters-bar {
   display: flex;
   align-items: center;
@@ -342,9 +343,7 @@ a { color: inherit; text-decoration: none; }
   .site-header h1 { font-size: 1.1rem; }
   .site-header .tagline { display: none; }
 
-  /* Filters: stack vertically, hide chevrons */
-  /* .filters-bar { flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 20px; } */
-  /* Filters: hidden by default on mobile */
+  .filters-toggle { display: block; }
   .filters-bar { display: none; margin-bottom: 12px; }
   .filters-bar.filters-open { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
   .filter-group { width: 100%; }
