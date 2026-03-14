@@ -34,7 +34,7 @@ export async function PATCH(request, { params }) {
       { new: true, runValidators: true }
     ).lean();
 
-    return NextResponse.json(updatedRoast, { status: 200 });
+    return NextResponse.json(updatedRoast, { status: 200, headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     console.error('PATCH /api/roasts error:', error);
     console.error(error);
