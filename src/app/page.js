@@ -547,7 +547,7 @@ const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast
 
 // ── Filter Bar ─────────────────────────────────────────────────────────────
 
-function FilterBar({ roasts, beans, filters, setFilters }) {
+function FilterBar({ roasts, beans, filters, setFilters, className }) {
   // Origin options now come from the beans collection (country field)
   const originOptions = useMemo(() => unique(beans.map(b => b.country)), [beans]);
 
@@ -592,7 +592,7 @@ function FilterBar({ roasts, beans, filters, setFilters }) {
   const hasFilters = filters.origin || filters.region || filters.process || filters.season;
 
   return (
-    <div className="filters-bar">
+    <div className={`filters-bar${className ? ` ${className}` : ''}`}>
       <div className="filter-group">
         <label htmlFor="filter-origin">Origin</label>
         <select id="filter-origin" value={filters.origin}
@@ -787,6 +787,8 @@ export default function DashboardPage() {
   const [filters,  setFilters]  = useState({ origin: '', region: '', process: '', season: '' });
   const [selected, setSelected] = useState(null);
   const [isAddingBean, setIsAddingBean] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   useEffect(() => {
     Promise.all([
@@ -835,7 +837,11 @@ export default function DashboardPage() {
 
       {!loading && !error && (
         <>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <button
+              onClick={() => setShowFilters(f => !f)}
+    style={{ padding: '4px 12px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', fontSize: '0.85rem', cursor: 'pointer' }}
+  >{showFilters ? 'Hide Filters' : `Filters${activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}`}</button>
             <button
               onClick={() => setIsAddingBean(true)}
               style={{
@@ -852,7 +858,7 @@ export default function DashboardPage() {
               + Add Beans
             </button>
           </div>
-          <FilterBar roasts={roasts} beans={beans} filters={filters} setFilters={setFilters} />
+          <FilterBar roasts={roasts} beans={beans} filters={filters} setFilters={setFilters} className={showFilters ? 'filters-open' : ''} />
           <div className="results-count" style={{ marginTop: '-14px', marginBottom: '20px' }}>
             {filtered.length} of {roasts.length} roast{roasts.length !== 1 ? 's' : ''}
           </div>
