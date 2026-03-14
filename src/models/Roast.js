@@ -31,6 +31,7 @@ const RoastSchema = new Schema(
   {
     title:         { type: String, required: true, trim: true },
     beans:         { type: String, required: true, trim: true },
+    beanId:        { type: mongoose.Schema.Types.ObjectId, ref: 'GreenBean', default: null },
     roastDate:     { type: Date,   required: true },
     roastTime:     { type: String, required: true }, // e.g. "14:30"
     roastUUID:     { type: String, required: true, unique: true, index: true },
@@ -38,7 +39,17 @@ const RoastSchema = new Schema(
     weightOut:     { type: Number, required: true, min: 0 }, // grams
     weightLoss:    { type: Number, default: null },           // grams (or %)
     roastingNotes:    { type: String, default: '' },
-    cuppingNotes:     { type: String, default: '' },
+    cuppingNotes: [
+      {
+        method: { type: String, default: '' },
+        grindSize: { type: Number },
+        grinder: { type: String, default: '' },
+        waterTemp: { type: Number }, // stored in Celsius
+        ratio: { type: String, default: '' },
+        taste: { type: String, default: '' },
+        date: { type: Date, default: Date.now },
+      }
+    ],
     ambientTemp:      { type: Number, default: null },
     ambientHumidity:  { type: Number, default: null },
     computed:         { type: ComputedSchema, default: () => ({}) },
@@ -48,7 +59,12 @@ const RoastSchema = new Schema(
   }
 );
 
-// Prevent model recompilation on hot-reload (Next.js dev server)
-const Roast = models.Roast || model('Roast', RoastSchema);
+// Prevent model recompilation on hot-reload (Next.js dev server), but drop existing
+// model cache if it exists, to ensure schema updates (like string -> array) take effect.
+if (models.Roast) {
+  delete models.Roast;
+}
+
+const Roast = model('Roast', RoastSchema);
 
 export default Roast;
