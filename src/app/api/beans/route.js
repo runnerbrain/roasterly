@@ -6,7 +6,7 @@ export async function GET() {
   try {
     await connectDB();
     const beans = await GreenBean.find().sort({ purchaseDate: -1 }).lean();
-    return NextResponse.json(beans, { status: 200 });
+    return NextResponse.json(beans, { status: 200, headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     console.error('GET /api/beans error:', error);
     return NextResponse.json(
@@ -22,13 +22,13 @@ export async function POST(request) {
     const body = await request.json();
     const { country, region, process, purchaseDate, totalWeight } = body;
 
-const newBean = await GreenBean.create({
-  country,
-  region,
-  process,
-  purchaseDate,
-  totalWeight,
-});
+    const newBean = await GreenBean.create({
+      country,
+      region,
+      process,
+      purchaseDate,
+      totalWeight,
+    });
 
     return NextResponse.json(newBean, { status: 201 });
   } catch (error) {

@@ -6,7 +6,7 @@ export async function GET() {
   try {
     await connectDB();
     const roasts = await Roast.find({}).sort({ roastDate: -1 }).lean();
-    return NextResponse.json(roasts, { status: 200 });
+    return NextResponse.json(roasts, { status: 200, headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     console.error('GET /api/roasts error:', error);
     return NextResponse.json(
@@ -15,3 +15,4 @@ export async function GET() {
     );
   }
 }
+
