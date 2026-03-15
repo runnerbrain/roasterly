@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import useSWR from 'swr';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function fmtDate(iso) {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('en-US', {
+  const [year, month, day] = iso.split('T')[0].split('-');
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', {
     year: 'numeric', month: 'short', day: 'numeric',
   });
 }
@@ -39,6 +41,11 @@ function getSeason(isoDate) {
 function unique(arr) {
   return [...new Set(arr.filter(Boolean))].sort();
 }
+
+const fetcher = (url) => fetch(url).then((res) => {
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+});
 
 // ── Stat ───────────────────────────────────────────────────────────────────
 
@@ -782,29 +789,31 @@ import Header from '@/components/Header';
 export default function DashboardPage() {
   const [roasts,   setRoasts]   = useState([]);
   const [beans,    setBeans]    = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState(null);
   const [filters,  setFilters]  = useState({ origin: '', region: '', process: '', season: '' });
   const [selected, setSelected] = useState(null);
   const [isAddingBean, setIsAddingBean] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
+  const { data: roastsData, error: roastsError, isLoading: roastsLoading } = useSWR('/api/roasts', fetcher, {
+    refreshInterval: 30000,
+    revalidateOnFocus: true
+  });
+  const { data: beansData, error: beansError, isLoading: beansLoading } = useSWR('/api/beans', fetcher, {
+    refreshInterval: 30000,
+    revalidateOnFocus: true
+  });
+
+  const loading = roastsLoading || beansLoading;
+  const error = roastsError?.message || beansError?.message;
+
   useEffect(() => {
-    Promise.all([
-      fetch('/api/roasts').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }),
-      fetch('/api/beans').then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-    ])
-      .then(([roastsData, beansData]) => {
-        setRoasts(roastsData);
-        setBeans(beansData);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
+    if (roastsData) setRoasts(roastsData);
+  }, [roastsData]);
+
+  useEffect(() => {
+    if (beansData) setBeans(beansData);
+  }, [beansData]);
 
   const filtered = useMemo(() => {
     return roasts.filter(r => {
