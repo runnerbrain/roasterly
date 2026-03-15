@@ -817,8 +817,11 @@ export default function DashboardPage() {
 
   const filtered = useMemo(() => {
     return roasts.filter(r => {
-      if (filters.origin && r.title !== filters.origin)               return false;
-      if (filters.region && r.beans !== filters.region)               return false;
+      if (filters.origin || filters.region) {
+        const linkedBean = beans.find(b => String(b._id) === String(r.beanId));
+        if (filters.origin && (!linkedBean || linkedBean.country !== filters.origin)) return false;
+        if (filters.region && (!linkedBean || linkedBean.region !== filters.region)) return false;
+      }
       if (filters.process) {
         if (!r.beanId) return false;
         const linkedBean = beans.find(b => String(b._id) === String(r.beanId));
