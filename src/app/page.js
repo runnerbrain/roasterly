@@ -100,7 +100,7 @@ function RoastCard({ roast, beans, onClick }) {
         {/* Row 1 */}
         <Stat label="Charge BT"    value={fmtTemp(c.chargeBT)} />
         <Stat label="TP Time/BT"   value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
-        <Stat label="" value="" />
+        <Stat label="" value="" className="stat--detail" />
 
         {/* Row 2 */}
         <Stat label="Dry Time/BT"      value={`${fmtSecs(c.dryTime)} @ ${fmtTemp(c.dryBT)}`} />
@@ -115,7 +115,7 @@ function RoastCard({ roast, beans, onClick }) {
         {/* Row 4 */}
         <Stat label="Ambient Temp" value={roast.ambientTemp != null ? fmtTemp(roast.ambientTemp) : '—'} />
         <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'} />
-        <Stat label="" value="" />
+        <Stat label="" value="" className="stat--detail" />
       </div>
     </article>
   );
