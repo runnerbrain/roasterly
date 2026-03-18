@@ -98,22 +98,24 @@ function RoastCard({ roast, beans, onClick }) {
 
       <div className="card-stats">
         {/* Row 1 */}
-        <Stat label="Drop BT"      value={fmtTemp(c.dropBT)} />
         <Stat label="Charge BT"    value={fmtTemp(c.chargeBT)} />
-        <Stat label="Roast Time"   value={fmtSecs(c.totalRoastTime)} />
+        <Stat label="TP Time/BT"   value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
+        <Stat label="" value="" />
 
         {/* Row 2 */}
-        <Stat label="Ambient Temp" value={roast.ambientTemp != null ? fmtTemp(roast.ambientTemp) : '—'} />
-        <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'} />
-        <Stat label="TP Time/BT"   value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
+        <Stat label="Dry Time/BT"      value={`${fmtSecs(c.dryTime)} @ ${fmtTemp(c.dryBT)}`} />
+        <Stat label="1C Start Time/BT" value={`${fmtSecs(c.firstCrackTime)} @ ${fmtTemp(c.firstCrackBT)}`} />
+        <Stat label="Dry to 1C"        value={c.dryTime && c.firstCrackTime ? fmtSecs(c.firstCrackTime - c.dryTime) : '—'} />
 
         {/* Row 3 */}
-        <Stat label="Dry Time/BT"  value={`${fmtSecs(c.dryTime)} @ ${fmtTemp(c.dryBT)}`} />
-        <Stat label="1C Start Time/BT" value={`${fmtSecs(c.firstCrackTime)} @ ${fmtTemp(c.firstCrackBT)}`} />
-        <Stat label="Dry to 1C"    value={c.dryTime && c.firstCrackTime ? fmtSecs(c.firstCrackTime - c.dryTime) : '—'} />
+        <Stat label="1C End Time/BT" value={`${fmtSecs(c.fcEndTime)} @ ${fmtTemp(c.fcEndBT)}`} />
+        <Stat label="Drop Time/BT"   value={`${fmtSecs(c.dropTime)} @ ${fmtTemp(c.dropBT)}`} />
+        <Stat label="1C End to Drop" value={c.fcEndTime && c.dropTime ? fmtSecs(c.dropTime - c.fcEndTime) : '—'} />
 
         {/* Row 4 */}
-        <Stat label="1C End Time/BT" value={`${fmtSecs(c.fcEndTime)} @ ${fmtTemp(c.fcEndBT)}`} />
+        <Stat label="Ambient Temp" value={roast.ambientTemp != null ? fmtTemp(roast.ambientTemp) : '—'} />
+        <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'} />
+        <Stat label="" value="" />
       </div>
     </article>
   );
