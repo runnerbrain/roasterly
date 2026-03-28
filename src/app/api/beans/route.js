@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import GreenBean from '@/models/GreenBean';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     await connectDB();
