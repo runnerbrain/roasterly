@@ -6,7 +6,7 @@ export async function GET() {
   try {
     await connectDB();
     const beans = await GreenBean.find().sort({ purchaseDate: -1 }).lean();
-    return NextResponse.json(beans, { status: 200, headers: { 'Cache-Control': 'no-store','CDN-Cache-Control': 'no-store',} });
+    return NextResponse.json(beans, { status: 200, headers: { 'Cache-Control': 'no-store','CDN-Cache-Control': 'no-store','Vercel-CDN-Cache-Control': 'no-store'} });
   } catch (error) {
     console.error('GET /api/beans error:', error);
     return NextResponse.json(
