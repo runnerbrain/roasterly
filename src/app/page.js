@@ -787,6 +787,8 @@ function AddBeanModal({ onClose, onAddBean }) {
 // ── Page ───────────────────────────────────────────────────────────────────
 
 import Header from '@/components/Header';
+import GearMenu from '@/components/GearMenu';
+import AlogUploadModal from '@/components/AlogUploadModal';
 
 export default function DashboardPage() {
   const [roasts,   setRoasts]   = useState([]);
@@ -794,10 +796,11 @@ export default function DashboardPage() {
   const [filters,  setFilters]  = useState({ origin: '', region: '', process: '', season: '' });
   const [selected, setSelected] = useState(null);
   const [isAddingBean, setIsAddingBean] = useState(false);
+  const [isUploadingAlog, setIsUploadingAlog] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
-  const { data: roastsData, error: roastsError, isLoading: roastsLoading } = useSWR('/api/roasts', fetcher, {
+  const { data: roastsData, error: roastsError, isLoading: roastsLoading, mutate: mutateRoasts } = useSWR('/api/roasts', fetcher, {
     refreshInterval: 30000,
     revalidateOnFocus: true
   });
@@ -857,21 +860,10 @@ export default function DashboardPage() {
               style={{ padding: '4px 12px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', fontSize: '0.85rem', cursor: 'pointer' }}
               >{showFilters ? 'Hide Filters' : `Filters${activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}`}
             </button>
-            <button
-              onClick={() => setIsAddingBean(true)}
-              style={{
-                background: 'transparent',
-                border: '1px solid var(--border)',
-                color: 'var(--text)',
-                cursor: 'pointer',
-                padding: '4px 12px',
-                borderRadius: '6px',
-                fontSize: '0.85rem',
-                transition: 'background 0.2s'
-              }}
-            >
-              + Add Beans
-            </button>
+            <GearMenu 
+              onAddBeans={() => setIsAddingBean(true)}
+              onUploadRoasts={() => setIsUploadingAlog(true)}
+            />
           </div>
           <FilterBar roasts={roasts} beans={beans} filters={filters} setFilters={setFilters} className={showFilters ? 'filters-open' : ''} />
           <div className="results-count" style={{ marginTop: '-14px', marginBottom: '20px' }}>
@@ -903,6 +895,7 @@ export default function DashboardPage() {
 
       {selected && <RoastModal roast={selected} beans={beans} onClose={handleClose} onUpdate={handleUpdateRoast} />}
       {isAddingBean && <AddBeanModal onClose={() => setIsAddingBean(false)} onAddBean={handleAddBean} />}
+      {isUploadingAlog && <AlogUploadModal onClose={() => setIsUploadingAlog(false)} onUploadComplete={() => { mutateRoasts(); setIsUploadingAlog(false); }} />}
     </div>
   );
 }

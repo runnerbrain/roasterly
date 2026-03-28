@@ -1,1 +1,139 @@
-'use client';\n\nimport { useState, useEffect } from 'react';\n\nexport default function AlogUploadModal({ onClose, onUploadComplete }) {\n  const [files, setFiles] = useState([]);\n  const [isLoading, setIsLoading] = useState(false);\n  const [results, setResults] = useState(null);\n\n  // Close on Escape when not loading\n  useEffect(() => {\n    const handler = e => {\n      if (e.key === 'Escape' && !isLoading) onClose();\n    };\n    window.addEventListener('keydown', handler);\n    return () => window.removeEventListener('keydown', handler);\n  }, [onClose, isLoading]);\n\n  // Prevent body scroll while open\n  useEffect(() => {\n    document.body.style.overflow = 'hidden';\n    return () => { document.body.style.overflow = ''; };\n  }, []);\n\n  const handleUpload = async () => {\n    if (!files.length) return;\n    setIsLoading(true);\n    try {\n      const formData = new FormData();\n      for (const file of files) {\n        formData.append('files', file);\n      }\n      \n      const res = await fetch('/api/upload-alog', {\n        method: 'POST',\n        body: formData\n      });\n      \n      if (!res.ok) throw new Error('Upload request failed');\n      const data = await res.json();\n      \n      setResults(data.results || []);\n      if (onUploadComplete) onUploadComplete();\n    } catch (err) {\n      console.error(err);\n      alert('Failed to upload files.');\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  const getStatusColor = (status) => {\n    switch (status) {\n      case 'inserted': return '#4ade80'; // green\n      case 'updated': return '#9ca3af'; // gray\n      case 'skipped': return '#facc15'; // yellow\n      case 'error': return '#ef4444'; // red\n      default: return 'var(--text)';\n    }\n  };\n\n  return (\n    <div className=\"modal-overlay\" onClick={isLoading ? undefined : onClose}>\n      <div className=\"modal-panel\" onClick={e => e.stopPropagation()}>\n        <button className=\"modal-close\" onClick={isLoading ? undefined : onClose} disabled={isLoading} aria-label=\"Close\">\n          ✕\n        </button>\n        <div className=\"modal-header\" style={{ marginBottom: '16px' }}>\n          <h2 className=\"modal-title\">Upload .alog Files</h2>\n        </div>\n\n        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>\n          {!results ? (\n            <>\n              <div className=\"filter-group\" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>\n                <input\n                  type=\"file\"\n                  multiple\n                  accept=\".alog\"\n                  onChange={(e) => setFiles(Array.from(e.target.files || []))}\n                  disabled={isLoading}\n                  style={{ padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px' }}\n                />\n              </div>\n\n              {files.length > 0 && (\n                <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', padding: '12px', borderRadius: '8px', maxHeight: '200px', overflowY: 'auto' }}>\n                  <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Selected Files ({files.length})</h4>\n                  <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '0.85rem', color: 'var(--text)', display: 'flex', flexDirection: 'column', gap: '4px' }}>\n                    {files.map((file, i) => (\n                      <li key={i}>{file.name}</li>\n                    ))}\n                  </ul>\n                </div>\n              )}\n            </>\n          ) : (\n            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>\n              <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--text)' }}>Upload Results</h4>\n              <ul style={{ padding: 0, listStyle: 'none', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>\n                {results.map((r, i) => (\n                  <li key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px' }}>\n                    <span style={{ wordBreak: 'break-all', paddingRight: '12px' }}>{r.filename}</span>\n                    <span style={{ fontWeight: 600, color: getStatusColor(r.status), textTransform: 'capitalize', whiteSpace: 'nowrap' }}>\n                      {r.status}\n                    </span>\n                  </li>\n                ))}\n              </ul>\n            </div>\n          )}\n\n          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '12px' }}>\n            <button\n              onClick={onClose} \n              disabled={isLoading}\n              style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', cursor: isLoading ? 'not-allowed' : 'pointer' }}\n            >\n              Cancel\n            </button>\n            {!results && (\n              <button\n                onClick={handleUpload} \n                disabled={isLoading || files.length === 0}\n                style={{ padding: '8px 16px', background: '#c8702a', border: 'none', color: '#fff', borderRadius: '6px', fontWeight: 500, cursor: (isLoading || files.length === 0) ? 'not-allowed' : 'pointer', opacity: (isLoading || files.length === 0) ? 0.7 : 1 }}\n              >\n                {isLoading ? 'Uploading…' : 'Upload'}\n              </button>\n            )}\n          </div>\n        </div>\n      </div>\n    </div>\n  );\n}\n
+'use client';
+
+import { useState, useEffect } from 'react';
+
+export default function AlogUploadModal({ onClose, onUploadComplete }) {
+  const [files, setFiles] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [results, setResults] = useState(null);
+
+  // Close on Escape when not loading
+  useEffect(() => {
+    const handler = e => {
+      if (e.key === 'Escape' && !isLoading) onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose, isLoading]);
+
+  // Prevent body scroll while open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  const handleUpload = async () => {
+    if (!files.length) return;
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      for (const file of files) {
+        formData.append('files', file);
+      }
+      
+      const res = await fetch('/api/upload-alog', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!res.ok) throw new Error('Upload request failed');
+      const data = await res.json();
+      
+      setResults(data.results || []);
+      if (onUploadComplete) onUploadComplete();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to upload files.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'inserted': return '#4ade80'; // green
+      case 'updated': return '#9ca3af'; // gray
+      case 'skipped': return '#facc15'; // yellow
+      case 'error': return '#ef4444'; // red
+      default: return 'var(--text)';
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={isLoading ? undefined : onClose}>
+      <div className="modal-panel" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={isLoading ? undefined : onClose} disabled={isLoading} aria-label="Close">
+          ✕
+        </button>
+        <div className="modal-header" style={{ marginBottom: '16px' }}>
+          <h2 className="modal-title">Upload .alog Files</h2>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {!results ? (
+            <>
+              <div className="filter-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <input
+                  type="file"
+                  multiple
+                  accept=".alog"
+                  onChange={(e) => {
+                    const selected = Array.from(e.target.files || []);
+                    console.log('files selected:', selected);
+                    setFiles(selected);
+                  }}
+                  disabled={isLoading}
+                  style={{ padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px' }}
+                />
+              </div>
+
+              {files.length > 0 && (
+                <div style={{ background: 'var(--bg)', border: '1px solid var(--border)', padding: '12px', borderRadius: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                  <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Selected Files ({files.length})</h4>
+                  <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '0.85rem', color: 'var(--text)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {files.map((file, i) => (
+                      <li key={i}>{file.name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+              <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--text)' }}>Upload Results</h4>
+              <ul style={{ padding: 0, listStyle: 'none', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {results.map((r, i) => (
+                  <li key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', padding: '10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '6px' }}>
+                    <span style={{ wordBreak: 'break-all', paddingRight: '12px' }}>{r.filename}</span>
+                    <span style={{ fontWeight: 600, color: getStatusColor(r.status), textTransform: 'capitalize', whiteSpace: 'nowrap' }}>
+                      {r.status}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '12px' }}>
+            <button
+              onClick={onClose} 
+              disabled={isLoading}
+              style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', cursor: isLoading ? 'not-allowed' : 'pointer' }}
+            >
+              Cancel
+            </button>
+            {!results && (
+              <button
+                onClick={handleUpload} 
+                disabled={isLoading || files.length === 0}
+                style={{ padding: '8px 16px', background: '#c8702a', border: 'none', color: '#fff', borderRadius: '6px', fontWeight: 500, cursor: (isLoading || files.length === 0) ? 'not-allowed' : 'pointer', opacity: (isLoading || files.length === 0) ? 0.7 : 1 }}
+              >
+                {isLoading ? 'Uploading…' : 'Upload'}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
