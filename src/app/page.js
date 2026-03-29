@@ -146,7 +146,8 @@ function RoastModal({ roast, beans, onClose, onUpdate }) {
     grinder: '',
     waterTemp: '',
     ratio: '',
-    taste: ''
+    taste: '',
+    tasteRating: ''
   });
 
 const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast.beanId)) : null;
@@ -218,7 +219,7 @@ const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast
       const updatedRoast = await res.json();
       if (onUpdate) onUpdate(updatedRoast);
       setIsEditing(false);
-      setFormState({ method: '', grindSize: '', grinder: '', waterTemp: '', ratio: '', taste: '' });
+      setFormState({ method: '', grindSize: '', grinder: '', waterTemp: '', ratio: '', taste: '', tasteRating: '' });
     } catch (err) {
       console.error(err);
       alert('Failed to save cupping notes');
@@ -270,7 +271,7 @@ const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast
   };
 
   const handleCancelNote = () => {
-    setFormState({ method: '', grindSize: '', grinder: '', waterTemp: '', ratio: '', taste: '' });
+    setFormState({ method: '', grindSize: '', grinder: '', waterTemp: '', ratio: '', taste: '', tasteRating: '' });
     setIsEditing(false);
   };
 
@@ -504,6 +505,17 @@ const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast
                         style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', gridColumn: '1 / -1' }}
                       />
                     </div>
+                    <select
+                      value={editingNoteState.tasteRating || ''}
+                      onChange={(e) => setEditingNoteState({ ...editingNoteState, tasteRating: e.target.value })}
+                      style={{ width: '100%', padding: '8px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', gridColumn: '1 / -1' }}
+                    >
+                      <option value="">Taste Rating...</option>
+                      <option value="Excellent">Excellent</option>
+                      <option value="Very Good">Very Good</option>
+                      <option value="OK">OK</option>
+                      <option value="Failed">Failed</option>
+                    </select>
                     <textarea
                       placeholder="Taste notes..."
                       value={editingNoteState.taste || ''} onChange={(e) => setEditingNoteState({ ...editingNoteState, taste: e.target.value })}
@@ -584,6 +596,12 @@ const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast
                       <div><strong style={{ color: 'var(--text-secondary)' }}>Water Temp:</strong> {note.waterTemp ? `${note.waterTemp}°C` : '—'}</div>
                       <div><strong style={{ color: 'var(--text-secondary)' }}>Ratio:</strong> {note.ratio || '—'}</div>
                     </div>
+                    {note.tasteRating && (
+                      <div style={{ marginBottom: '4px' }}>
+                        <strong style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Taste Rating:</strong>
+                        <span style={{ marginLeft: '8px', fontSize: '0.95rem' }}>{note.tasteRating}</span>
+                      </div>
+                    )}
                     {note.taste && (
                       <div>
                         <strong style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Taste:</strong>
@@ -632,6 +650,17 @@ const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast
                 style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', gridColumn: '1 / -1' }}
               />
             </div>
+            <select
+              value={formState.tasteRating || ''}
+              onChange={(e) => setFormState({ ...formState, tasteRating: e.target.value })}
+              style={{ width: '100%', padding: '8px', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', gridColumn: '1 / -1' }}
+            >
+              <option value="">Taste Rating...</option>
+              <option value="Excellent">Excellent</option>
+              <option value="Very Good">Very Good</option>
+              <option value="OK">OK</option>
+              <option value="Failed">Failed</option>
+            </select>
             <textarea
               placeholder="Taste notes..."
               value={formState.taste} onChange={(e) => setFormState({ ...formState, taste: e.target.value })}

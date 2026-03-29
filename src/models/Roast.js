@@ -47,6 +47,7 @@ const RoastSchema = new Schema(
         waterTemp: { type: Number }, // stored in Celsius
         ratio: { type: String, default: '' },
         taste: { type: String, default: '' },
+        tasteRating: { type: String, enum: ['Excellent', 'Very Good', 'OK', 'Failed', ''], default: '' },
         date: { type: Date, default: Date.now },
       }
     ],
