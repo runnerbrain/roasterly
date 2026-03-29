@@ -138,6 +138,8 @@ function RoastModal({ roast, beans, onClose, onUpdate }) {
   const [isLinking, setIsLinking] = useState(false);
   const [selectedBeanId, setSelectedBeanId] = useState('');
   const [pendingDeleteIdx, setPendingDeleteIdx] = useState(null);
+  const [editingNoteIdx, setEditingNoteIdx] = useState(null);
+  const [editingNoteState, setEditingNoteState] = useState({});
   const [formState, setFormState] = useState({
     method: '',
     grindSize: '',
@@ -240,6 +242,28 @@ const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast
     } catch (err) {
       console.error(err);
       alert('Failed to delete note');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleUpdateNote = async (idx) => {
+    setIsSaving(true);
+    try {
+      const updatedNotes = notesArray.map((n, i) => i === idx ? { ...n, ...editingNoteState } : n);
+      const res = await fetch(`/api/roasts/${roast._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cuppingNotes: updatedNotes }),
+      });
+      if (!res.ok) throw new Error('Failed to update note');
+      const updatedRoast = await res.json();
+      if (onUpdate) onUpdate(updatedRoast);
+      setEditingNoteIdx(null);
+      setEditingNoteState({});
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update cupping note');
     } finally {
       setIsSaving(false);
     }
@@ -451,57 +475,122 @@ const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast
                 borderRadius: '8px',
                 position: 'relative'
               }}>
-                <button
-                  onClick={() => setPendingDeleteIdx(idx)}
-                  disabled={isSaving}
-                  style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-secondary)',
-                    opacity: 0.7,
-                    cursor: isSaving ? 'not-allowed' : 'pointer',
-                    fontSize: '0.85rem',
-                  }}
-                  title="Delete note"
-                >
-                  ✕
-                </button>
-                {pendingDeleteIdx === idx && (
-                  <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.85rem' }}>
-                    <span style={{ color: 'var(--text-secondary)' }}>Delete this note?</span>
+                {editingNoteIdx === idx ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <input
+                        type="text" placeholder="Method (e.g. V60, Cupping)"
+                        value={editingNoteState.method || ''} onChange={(e) => setEditingNoteState({ ...editingNoteState, method: e.target.value })}
+                        style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px' }}
+                      />
+                      <input
+                        type="text" placeholder="Grinder (e.g. Fellow Ode)"
+                        value={editingNoteState.grinder || ''} onChange={(e) => setEditingNoteState({ ...editingNoteState, grinder: e.target.value })}
+                        style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px' }}
+                      />
+                      <input
+                        type="number" placeholder="Grind Size"
+                        value={editingNoteState.grindSize || ''} onChange={(e) => setEditingNoteState({ ...editingNoteState, grindSize: e.target.value ? Number(e.target.value) : '' })}
+                        style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px' }}
+                      />
+                      <input
+                        type="number" placeholder="Water Temp (°C)"
+                        value={editingNoteState.waterTemp || ''} onChange={(e) => setEditingNoteState({ ...editingNoteState, waterTemp: e.target.value ? Number(e.target.value) : '' })}
+                        style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px' }}
+                      />
+                      <input
+                        type="text" placeholder="Ratio (e.g. 1:15)"
+                        value={editingNoteState.ratio || ''} onChange={(e) => setEditingNoteState({ ...editingNoteState, ratio: e.target.value })}
+                        style={{ width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', gridColumn: '1 / -1' }}
+                      />
+                    </div>
+                    <textarea
+                      placeholder="Taste notes..."
+                      value={editingNoteState.taste || ''} onChange={(e) => setEditingNoteState({ ...editingNoteState, taste: e.target.value })}
+                      rows={3}
+                      style={{
+                        width: '100%', padding: '8px', background: 'transparent', border: '1px solid var(--border)',
+                        color: 'var(--text)', borderRadius: '6px', resize: 'vertical', fontFamily: 'inherit'
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      <button
+                        onClick={() => setEditingNoteIdx(null)} disabled={isSaving}
+                        style={{ padding: '6px 14px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', cursor: isSaving ? 'not-allowed' : 'pointer' }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => handleUpdateNote(idx)} disabled={isSaving}
+                        style={{ padding: '6px 14px', background: '#c8702a', border: 'none', color: '#fff', borderRadius: '6px', fontWeight: 500, cursor: isSaving ? 'not-allowed' : 'pointer' }}
+                      >
+                        {isSaving ? 'Saving…' : 'Save'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
                     <button
-                      onClick={() => { handleDeleteNote(idx); setPendingDeleteIdx(null); }}
+                      onClick={() => { setEditingNoteIdx(idx); setEditingNoteState({ ...note }); }}
                       disabled={isSaving}
-                      style={{ padding: '3px 10px', background: '#ef4444', border: 'none', color: '#fff', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem' }}
+                      style={{ position: 'absolute', top: '12px', right: '36px', background: 'none', border: 'none', color: 'var(--text-secondary)', opacity: 0.7, cursor: 'pointer', fontSize: '0.85rem' }}
+                      title="Edit note"
                     >
-                      Delete
+                      ✎
                     </button>
                     <button
-                      onClick={() => setPendingDeleteIdx(null)}
-                      style={{ padding: '3px 10px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem' }}
+                      onClick={() => setPendingDeleteIdx(idx)}
+                      disabled={isSaving}
+                      style={{
+                        position: 'absolute',
+                        top: '12px',
+                        right: '12px',
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--text-secondary)',
+                        opacity: 0.7,
+                        cursor: isSaving ? 'not-allowed' : 'pointer',
+                        fontSize: '0.85rem',
+                      }}
+                      title="Delete note"
                     >
-                      Cancel
+                      ✕
                     </button>
-                  </div>
-                )}
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                  {note.date ? new Date(note.date).toLocaleDateString() : '—'}
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', fontSize: '0.9rem', marginBottom: '8px' }}>
-                  <div><strong style={{ color: 'var(--text-secondary)' }}>Method:</strong> {note.method || '—'}</div>
-                  <div><strong style={{ color: 'var(--text-secondary)' }}>Grinder:</strong> {note.grinder || '—'}</div>
-                  <div><strong style={{ color: 'var(--text-secondary)' }}>Grind Size:</strong> {note.grindSize || '—'}</div>
-                  <div><strong style={{ color: 'var(--text-secondary)' }}>Water Temp:</strong> {note.waterTemp ? `${note.waterTemp}°C` : '—'}</div>
-                  <div><strong style={{ color: 'var(--text-secondary)' }}>Ratio:</strong> {note.ratio || '—'}</div>
-                </div>
-                {note.taste && (
-                  <div>
-                    <strong style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Taste:</strong>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '0.95rem', lineHeight: 1.4 }}>{note.taste}</p>
-                  </div>
+                    {pendingDeleteIdx === idx && (
+                      <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.85rem' }}>
+                        <span style={{ color: 'var(--text-secondary)' }}>Delete this note?</span>
+                        <button
+                          onClick={() => { handleDeleteNote(idx); setPendingDeleteIdx(null); }}
+                          disabled={isSaving}
+                          style={{ padding: '3px 10px', background: '#ef4444', border: 'none', color: '#fff', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem' }}
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={() => setPendingDeleteIdx(null)}
+                          style={{ padding: '3px 10px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem' }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                      {note.date ? new Date(note.date).toLocaleDateString() : '—'}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', fontSize: '0.9rem', marginBottom: '8px' }}>
+                      <div><strong style={{ color: 'var(--text-secondary)' }}>Method:</strong> {note.method || '—'}</div>
+                      <div><strong style={{ color: 'var(--text-secondary)' }}>Grinder:</strong> {note.grinder || '—'}</div>
+                      <div><strong style={{ color: 'var(--text-secondary)' }}>Grind Size:</strong> {note.grindSize || '—'}</div>
+                      <div><strong style={{ color: 'var(--text-secondary)' }}>Water Temp:</strong> {note.waterTemp ? `${note.waterTemp}°C` : '—'}</div>
+                      <div><strong style={{ color: 'var(--text-secondary)' }}>Ratio:</strong> {note.ratio || '—'}</div>
+                    </div>
+                    {note.taste && (
+                      <div>
+                        <strong style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Taste:</strong>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.95rem', lineHeight: 1.4 }}>{note.taste}</p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             ))}
