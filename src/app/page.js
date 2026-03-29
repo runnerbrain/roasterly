@@ -137,6 +137,7 @@ function RoastModal({ roast, beans, onClose, onUpdate }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isLinking, setIsLinking] = useState(false);
   const [selectedBeanId, setSelectedBeanId] = useState('');
+  const [pendingDeleteIdx, setPendingDeleteIdx] = useState(null);
   const [formState, setFormState] = useState({
     method: '',
     grindSize: '',
@@ -451,7 +452,7 @@ const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast
                 position: 'relative'
               }}>
                 <button
-                  onClick={() => handleDeleteNote(idx)}
+                  onClick={() => setPendingDeleteIdx(idx)}
                   disabled={isSaving}
                   style={{
                     position: 'absolute',
@@ -468,6 +469,24 @@ const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast
                 >
                   ✕
                 </button>
+                {pendingDeleteIdx === idx && (
+                  <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.85rem' }}>
+                    <span style={{ color: 'var(--text-secondary)' }}>Delete this note?</span>
+                    <button
+                      onClick={() => { handleDeleteNote(idx); setPendingDeleteIdx(null); }}
+                      disabled={isSaving}
+                      style={{ padding: '3px 10px', background: '#ef4444', border: 'none', color: '#fff', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem' }}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => setPendingDeleteIdx(null)}
+                      style={{ padding: '3px 10px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
                   {note.date ? new Date(note.date).toLocaleDateString() : '—'}
                 </div>
