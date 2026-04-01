@@ -935,6 +935,7 @@ export default function DashboardPage() {
   const [isAddingBean, setIsAddingBean] = useState(false);
   const [isUploadingAlog, setIsUploadingAlog] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   const { data: roastsData, error: roastsError, isLoading: roastsLoading, mutate: mutateRoasts } = useSWR('/api/roasts', fetcher, {
@@ -973,6 +974,13 @@ export default function DashboardPage() {
       return true;
     });
   }, [roasts, beans, filters]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  const totalPages = Math.ceil(filtered.length / 15);
+  const paginated = filtered.slice((currentPage - 1) * 15, currentPage * 15);
 
   const handleClose = useCallback(() => setSelected(null), []);
 
@@ -1021,9 +1029,49 @@ export default function DashboardPage() {
 
       {!loading && !error && filtered.length > 0 && (
         <div className="roast-grid">
-          {filtered.map(r => (
+          {paginated.map(r => (
             <RoastCard key={r._id} roast={r} beans={beans} onClick={() => setSelected(r)} />
           ))}
+        </div>
+      )}
+
+      {!loading && !error && totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', marginTop: '32px', marginBottom: '16px' }}>
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              color: 'var(--text)',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+              padding: '4px 12px',
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              opacity: currentPage === 1 ? 0.5 : 1
+            }}
+          >
+            Previous
+          </button>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              color: 'var(--text)',
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+              padding: '4px 12px',
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              opacity: currentPage === totalPages ? 0.5 : 1
+            }}
+          >
+            Next
+          </button>
         </div>
       )}
 
