@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-export default function GearMenu({ onAddBeans, onUploadRoasts }) {
+export default function GearMenu({ onAddBeans, onUploadRoasts, showFilters, onShowFilters }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -20,23 +20,54 @@ export default function GearMenu({ onAddBeans, onUploadRoasts }) {
     };
   }, [isOpen]);
 
+  const buttonStyle = {
+    background: 'transparent',
+    border: '1px solid var(--border)',
+    color: 'var(--text)',
+    cursor: 'pointer',
+    padding: '4px 12px',
+    borderRadius: '6px',
+    fontSize: '0.85rem',
+    transition: 'background 0.2s',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    whiteSpace: 'nowrap'
+  };
+
   return (
-    <div style={{ position: 'relative', display: 'inline-block' }} ref={menuRef}>
+    <div className="gear-menu-container" ref={menuRef}>
+      <style>{`
+        .gear-menu-container {
+          position: relative;
+          display: flex;
+          gap: 8px;
+          align-items: flex-start;
+        }
+        .gear-menu-actions {
+          display: flex;
+          gap: 8px;
+        }
+        @media (max-width: 600px) {
+          .gear-menu-container {
+            flex-direction: column;
+            align-items: flex-end;
+          }
+          .gear-menu-actions {
+            flex-direction: column;
+            align-items: flex-end;
+          }
+        }
+      `}</style>
+
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          background: 'transparent',
-          border: '1px solid var(--border)',
-          color: 'var(--text)',
-          cursor: 'pointer',
-          padding: '4px 12px',
-          borderRadius: '6px',
-          fontSize: '0.85rem',
-          transition: 'background 0.2s',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
+        onClick={() => {
+          if (isOpen && showFilters) {
+            onShowFilters();
+          }
+          setIsOpen(!isOpen);
         }}
+        style={buttonStyle}
         aria-label="Menu"
         title="Menu"
       >
@@ -44,39 +75,13 @@ export default function GearMenu({ onAddBeans, onUploadRoasts }) {
       </button>
 
       {isOpen && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '100%',
-            right: 0,
-            marginTop: '8px',
-            background: 'var(--bg)',
-            border: '1px solid var(--border)',
-            borderRadius: '6px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            zIndex: 100,
-            minWidth: '150px',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column'
-          }}
-        >
+        <div className="gear-menu-actions">
           <button
             onClick={() => {
               setIsOpen(false);
               onAddBeans();
             }}
-            style={{
-              padding: '10px 16px',
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text)',
-              textAlign: 'left',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              transition: 'background 0.2s',
-              borderBottom: '1px solid var(--border)'
-            }}
+            style={buttonStyle}
             onMouseOver={(e) => (e.target.style.background = 'var(--card-bg)')}
             onMouseOut={(e) => (e.target.style.background = 'transparent')}
           >
@@ -87,20 +92,28 @@ export default function GearMenu({ onAddBeans, onUploadRoasts }) {
               setIsOpen(false);
               onUploadRoasts();
             }}
-            style={{
-              padding: '10px 16px',
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text)',
-              textAlign: 'left',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              transition: 'background 0.2s'
-            }}
+            style={buttonStyle}
             onMouseOver={(e) => (e.target.style.background = 'var(--card-bg)')}
             onMouseOut={(e) => (e.target.style.background = 'transparent')}
           >
             ↑ Upload Roasts
+          </button>
+          <button
+            onClick={onShowFilters}
+            style={{
+              ...buttonStyle,
+              borderColor: showFilters ? '#c8702a' : 'var(--border)',
+              background: showFilters ? '#c8702a' : 'transparent',
+              color: showFilters ? '#fff' : 'var(--text)'
+            }}
+            onMouseOver={(e) => {
+              if (!showFilters) e.target.style.background = 'var(--card-bg)';
+            }}
+            onMouseOut={(e) => {
+              if (!showFilters) e.target.style.background = 'transparent';
+            }}
+          >
+            Filter ▾
           </button>
         </div>
       )}

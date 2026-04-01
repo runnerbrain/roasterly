@@ -991,15 +991,12 @@ export default function DashboardPage() {
 
       {!loading && !error && (
         <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <button className="filters-toggle"
-              onClick={() => setShowFilters(f => !f)}
-              style={{ padding: '4px 12px', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '6px', fontSize: '0.85rem', cursor: 'pointer' }}
-              >{showFilters ? 'Hide Filters' : `Filters${activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}`}
-            </button>
+          <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '16px' }}>
             <GearMenu 
               onAddBeans={() => setIsAddingBean(true)}
               onUploadRoasts={() => setIsUploadingAlog(true)}
+              showFilters={showFilters}
+              onShowFilters={() => setShowFilters(f => !f)}
             />
           </div>
           <FilterBar roasts={roasts} beans={beans} filters={filters} setFilters={setFilters} className={showFilters ? 'filters-open' : ''} />

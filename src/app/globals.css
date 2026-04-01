@@ -84,11 +84,15 @@ a {
 }
 
 .filters-bar {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 28px;
+}
+
+.filters-bar.filters-open {
+  display: flex;
 }
 
 .filter-group {
