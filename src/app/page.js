@@ -69,7 +69,6 @@ function RoastCard({ roast, beans, onClick }) {
       : '—';
 
       const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast.beanId)) : null;
-      console.log('beanId:', roast.beanId, 'linkedBean:', linkedBean, 'beans:', beans.length);
 
   return (
     <article className="roast-card" onClick={onClick} role="button" tabIndex={0}
@@ -99,23 +98,23 @@ function RoastCard({ roast, beans, onClick }) {
       <div className="card-stats">
         {/* Row 1 */}
         <Stat label="Charge BT"    value={fmtTemp(c.chargeBT)} />
-        <Stat label="TP Time/BT"   value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
-        <Stat label="" value="" className="stat--detail" />
+        <Stat label="Drop Time/BT" value={`${fmtSecs(c.dropTime)} @ ${fmtTemp(c.dropBT)}`} />
+        <Stat label="Conditions"   value={`${roast.ambientTemp != null ? fmtTemp(roast.ambientTemp) : '—'} / ${roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'}`} />
 
         {/* Row 2 */}
-        <Stat label="Dry Time/BT"      value={`${fmtSecs(c.dryTime)} @ ${fmtTemp(c.dryBT)}`} />
-        <Stat label="1C Start Time/BT" value={`${fmtSecs(c.firstCrackTime)} @ ${fmtTemp(c.firstCrackBT)}`} />
-        <Stat label="Dry to 1C"        value={c.dryTime && c.firstCrackTime ? fmtSecs(c.firstCrackTime - c.dryTime) : '—'} />
+        <Stat label="TP Time/BT"  value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
+        <Stat label="Dry Time/BT" value={`${fmtSecs(c.dryTime)} @ ${fmtTemp(c.dryBT)}`} />
+        <Stat label="TP to Dry"   value={c.tpTime && c.dryTime ? fmtSecs(c.dryTime - c.tpTime) : '—'} />
 
         {/* Row 3 */}
-        <Stat label="1C End Time/BT" value={`${fmtSecs(c.fcEndTime)} @ ${fmtTemp(c.fcEndBT)}`} />
-        <Stat label="Drop Time/BT"   value={`${fmtSecs(c.dropTime)} @ ${fmtTemp(c.dropBT)}`} />
-        <Stat label="1C End to Drop" value={c.fcEndTime && c.dropTime ? fmtSecs(c.dropTime - c.fcEndTime) : '—'} />
+        <Stat label="1C Start Time/BT" value={`${fmtSecs(c.firstCrackTime)} @ ${fmtTemp(c.firstCrackBT)}`} />
+        <Stat label="1C End Time/BT"   value={`${fmtSecs(c.fcEndTime)} @ ${fmtTemp(c.fcEndBT)}`} />
+        <Stat label="1C Duration"      value={c.firstCrackTime && c.fcEndTime ? fmtSecs(c.fcEndTime - c.firstCrackTime) : '—'} />
 
         {/* Row 4 */}
-        <Stat label="Ambient Temp" value={roast.ambientTemp != null ? fmtTemp(roast.ambientTemp) : '—'} />
-        <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'} />
-        <Stat label="" value="" className="stat--detail" />
+        <Stat label="Roast Time"  value={fmtSecs(c.totalRoastTime)} />
+        <Stat label="Weight Out"  value={fmtWeight(roast.weightOut)} />
+        <Stat label="Loss"        value={roast.weightLoss != null ? `${roast.weightLoss}%` : '—'} em />
       </div>
     </article>
   );
@@ -400,29 +399,25 @@ const linkedBean = roast.beanId ? beans.find(b => String(b._id) === String(roast
 
         <div className="modal-section-label">Roast Stats</div>
         <div className="modal-stats">
-          {/* Row 1 - Match Card Header */}
-          <Stat label="Drop BT"      value={fmtTemp(c.dropBT)} />
-          <Stat label="Drop ET"      value={fmtTemp(c.dropET)} />
+          {/* Row 1 */}
           <Stat label="Charge BT"    value={fmtTemp(c.chargeBT)} />
-          <Stat label="Charge ET"    value={fmtTemp(c.chargeET)} />
+          <Stat label="Drop Time/BT" value={`${fmtSecs(c.dropTime)} @ ${fmtTemp(c.dropBT)}`} />
+          <Stat label="Conditions"   value={`${roast.ambientTemp != null ? fmtTemp(roast.ambientTemp) : '—'} / ${roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'}`} />
 
-          {/* Row 2 - Match Card Row 2 */}
-          <Stat label="Ambient Temp" value={roast.ambientTemp != null ? fmtTemp(roast.ambientTemp) : '—'} />
-          <Stat label="Humidity"     value={roast.ambientHumidity != null ? `${roast.ambientHumidity}%` : '—'} />
-          <Stat label="TP Time/BT"   value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
-          <Stat label="TP ET"        value={fmtTemp(c.tpET)} />
+          {/* Row 2 */}
+          <Stat label="TP Time/BT"  value={`${fmtSecs(c.tpTime)} @ ${fmtTemp(c.tpBT)}`} />
+          <Stat label="Dry Time/BT" value={`${fmtSecs(c.dryTime)} @ ${fmtTemp(c.dryBT)}`} />
+          <Stat label="TP to Dry"   value={c.tpTime && c.dryTime ? fmtSecs(c.dryTime - c.tpTime) : '—'} />
 
-          {/* Row 3 - Match Card Row 3 */}
-          <Stat label="Dry Time/BT"  value={`${fmtSecs(c.dryTime)} @ ${fmtTemp(c.dryBT)}`} />
-          <Stat label="Dry ET"       value={fmtTemp(c.dryET)} />
+          {/* Row 3 */}
           <Stat label="1C Start Time/BT" value={`${fmtSecs(c.firstCrackTime)} @ ${fmtTemp(c.firstCrackBT)}`} />
-          <Stat label="Dry to 1C"    value={c.dryTime && c.firstCrackTime ? fmtSecs(c.firstCrackTime - c.dryTime) : '—'} />
+          <Stat label="1C End Time/BT"   value={`${fmtSecs(c.fcEndTime)} @ ${fmtTemp(c.fcEndBT)}`} />
+          <Stat label="1C Duration"      value={c.firstCrackTime && c.fcEndTime ? fmtSecs(c.fcEndTime - c.firstCrackTime) : '—'} />
 
-          {/* Row 4 - Match Card Row 4 */}
-          <Stat label="1C End Time/BT" value={`${fmtSecs(c.fcEndTime)} @ ${fmtTemp(c.fcEndBT)}`} />
-          <Stat label="Roast Time"   value={fmtSecs(c.totalRoastTime)} />
-          <Stat label="Weight Out"   value={fmtWeight(roast.weightOut)} />
-          <Stat label="Loss"         value={weightLoss} em />
+          {/* Row 4 */}
+          <Stat label="Roast Time"  value={fmtSecs(c.totalRoastTime)} />
+          <Stat label="Weight Out"  value={fmtWeight(roast.weightOut)} />
+          <Stat label="Loss"        value={weightLoss} em />
         </div>
 
         <div className="modal-section-label">Rate of Rise (°/min)</div>

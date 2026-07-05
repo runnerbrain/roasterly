@@ -5,20 +5,30 @@
  */
 
 export function pythonDictToJson(raw) {
-  return raw
-    // Python literals → JSON literals (word-boundary safe)
+  // Step 1: Python literals → JSON literals
+  let result = raw
     .replace(/\bTrue\b/g,  'true')
     .replace(/\bFalse\b/g, 'false')
-    .replace(/\bNone\b/g,  'null')
-    // Single-quoted strings → double-quoted strings.
-    .replace(/'((?:[^'\\]|\\.)*)'/g, (_match, content) => {
-      // 1. Unescape any escaped single quotes inside the string
-      // 2. Escape any bare double quotes (so JSON.parse doesn't choke)
-      const fixed = content
-        .replace(/\\'/g, "'")
-        .replace(/"/g, '\\"');
-      return `"${fixed}"`;
-    });
+    .replace(/\bNone\b/g,  'null');
+
+  // Step 2: Normalize double-quoted strings that contain apostrophes
+  // by temporarily replacing the apostrophe with a placeholder
+  result = result.replace(/"([^"\\]*)"/g, (_match, content) => {
+    const fixed = content
+      .replace(/'/g, '\u2019')  // replace apostrophe with right single quotation mark
+      .replace(/"/g, '\\"');
+    return `"${fixed}"`;
+  });
+
+  // Step 3: Single-quoted strings → double-quoted strings
+  result = result.replace(/'((?:[^'\\]|\\.)*)'/g, (_match, content) => {
+    const fixed = content
+      .replace(/\\'/g, "'")
+      .replace(/"/g, '\\"');
+    return `"${fixed}"`;
+  });
+
+  return result;
 }
 
 export function mapAlogToRoast(alog) {

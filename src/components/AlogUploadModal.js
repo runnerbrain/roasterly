@@ -23,6 +23,7 @@ export default function AlogUploadModal({ onClose, onUploadComplete }) {
   }, []);
 
   const handleUpload = async () => {
+    console.log('[handleUpload] Triggered. files state:', files);
     if (!files.length) return;
     setIsLoading(true);
     try {
@@ -31,6 +32,7 @@ export default function AlogUploadModal({ onClose, onUploadComplete }) {
         formData.append('files', file);
       }
       
+      console.log('[handleUpload] Before fetch. formData "files" entries:', formData.getAll('files'));
       const res = await fetch('/api/upload-alog', {
         method: 'POST',
         body: formData
