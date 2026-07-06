@@ -331,7 +331,7 @@ a {
   align-items: center;
   justify-content: center;
   z-index: 100;
-  padding: 24px;
+  padding: env(safe-area-inset-top, 24px) 24px 24px 24px;
   animation: fadeIn .15s ease;
 }
 
